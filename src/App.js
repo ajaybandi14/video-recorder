@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { Button } from 'semantic-ui-react'
+import 'semantic-ui-css/semantic.min.css'
 
 // Max Record Time - Seconds
 const MAX_RECORD_TIME = 5;
@@ -126,9 +128,9 @@ export default function Home() {
   return (
     <div>
       <video ref={videoRef} muted autoPlay></video>
-      <button onClick={() => startRecording()} disabled={isRecording}>
+      <Button onClick={() => startRecording()} disabled={isRecording}>
         Start Recording
-      </button>
+      </Button>
       <button onClick={() => (isPaused ? resumeRecording() : pauseRecording())} disabled={!isRecording}>
         {`${isPaused ? 'Resume' : 'Pause'} Recording`}
       </button>
