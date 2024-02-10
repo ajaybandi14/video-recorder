@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import 'semantic-ui-css/semantic.min.css'
-import { Button, Table } from 'semantic-ui-react'
+import { Button, Table, Progress, Segment } from 'semantic-ui-react'
 
 // Max Record Time - Seconds
-const MAX_RECORD_TIME = 5;
+const MAX_RECORD_TIME = 30;
 
 // Max Size Limit - Mb
 const MAX_SIZE_LIMIT = 50;
@@ -128,17 +128,27 @@ export default function Home() {
   return (
     <div>
       <video ref={videoRef} muted autoPlay></video>
-      <Button onClick={() => startRecording()} disabled={isRecording}>
-        Start Recording
-      </Button>
-      <Button color={isPaused ? 'orange' : 'yellow'} onClick={() => (isPaused ? resumeRecording() : pauseRecording())} disabled={!isRecording}>
-        {`${isPaused ? 'Resume' : 'Pause'} Recording`}
-      </Button>
-      <Button color='red' onClick={() => stopRecording()} disabled={!isRecording}>
-        Stop Recording
-      </Button>
+      <Segment>
+        <Button onClick={() => startRecording()} disabled={isRecording}>
+          Start Recording
+        </Button>
+        <Button color={isPaused ? 'orange' : 'yellow'} onClick={() => (isPaused ? resumeRecording() : pauseRecording())} disabled={!isRecording}>
+          {`${isPaused ? 'Resume' : 'Pause'} Recording`}
+        </Button>
+        <Button color='red' onClick={() => stopRecording()} disabled={!isRecording}>
+          Stop Recording
+        </Button>
+      </Segment>
       <p>{message}</p>
       {recordingLength ? <p>Recording Length: {recordingLength} seconds</p> : ''}
+
+      {isRecording && (
+        <Progress
+          percent={(recordingLength / MAX_RECORD_TIME) * 100}
+          indicating
+          autoSuccess
+        />
+      )}
 
       {history.length > 0 && (
         <div>
