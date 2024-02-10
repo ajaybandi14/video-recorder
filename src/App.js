@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button } from 'semantic-ui-react'
 import 'semantic-ui-css/semantic.min.css'
+import { Button, Table } from 'semantic-ui-react'
 
 // Max Record Time - Seconds
 const MAX_RECORD_TIME = 5;
@@ -131,42 +131,43 @@ export default function Home() {
       <Button onClick={() => startRecording()} disabled={isRecording}>
         Start Recording
       </Button>
-      <button onClick={() => (isPaused ? resumeRecording() : pauseRecording())} disabled={!isRecording}>
+      <Button color={isPaused ? 'orange' : 'yellow'} onClick={() => (isPaused ? resumeRecording() : pauseRecording())} disabled={!isRecording}>
         {`${isPaused ? 'Resume' : 'Pause'} Recording`}
-      </button>
-      <button onClick={() => stopRecording()} disabled={!isRecording}>
+      </Button>
+      <Button color='red' onClick={() => stopRecording()} disabled={!isRecording}>
         Stop Recording
-      </button>
+      </Button>
       <p>{message}</p>
       {recordingLength ? <p>Recording Length: {recordingLength} seconds</p> : ''}
 
       {history.length > 0 && (
         <div>
           <h2>Recorded Videos History</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Filename</th>
-                <th>Size</th>
-                <th>Length</th>
-                <th>Timestamp</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table celled>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell>Filename</Table.HeaderCell>
+                <Table.HeaderCell>Size</Table.HeaderCell>
+                <Table.HeaderCell>Length</Table.HeaderCell>
+                <Table.HeaderCell>Timestamp</Table.HeaderCell>
+                <Table.HeaderCell>Action</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+
+            <Table.Body>
               {history.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.filename}</td>
-                  <td>{item.size}</td>
-                  <td>{item.timeRecordedFor}</td>
-                  <td>{item.time}</td>
-                  <td>
+                <Table.Row key={index}>
+                  <Table.Cell>{item.filename}</Table.Cell>
+                  <Table.Cell>{item.size}</Table.Cell>
+                  <Table.Cell>{item.timeRecordedFor}</Table.Cell>
+                  <Table.Cell>{item.time}</Table.Cell>
+                  <Table.Cell>
                     <a href={item.url} download={item.filename}>Download</a>
-                  </td>
-                </tr>
+                  </Table.Cell>
+                </Table.Row>
               ))}
-            </tbody>
-          </table>
+            </Table.Body>
+          </Table>
         </div>
       )}
     </div>
