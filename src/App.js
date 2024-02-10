@@ -10,7 +10,6 @@ export default function Home() {
   const [isRecording, setRecording] = useState(false);
   const [recorder, setRecorder] = useState(null);
   const [isPaused, setPause] = useState(false);
-  const [isDownload, setDownload] = useState(false);
   const [message, setMessage] = useState('');
   const [recordingLength, setRecordingLength] = useState(0);
   const [history, setHistory] = useState([]);
@@ -45,7 +44,6 @@ export default function Home() {
               url: videoURL,
             },
           ]);
-          setDownload(true);
         }
         chunksRef.current = [];
         clearInterval(timerIdRef.current);
@@ -137,9 +135,6 @@ export default function Home() {
       <button onClick={() => stopRecording()} disabled={!isRecording}>
         Stop Recording
       </button>
-      <a id="downloadLink" disabled={!isDownload}>
-        Download Video
-      </a>
       <p>{message}</p>
       {recordingLength ? <p>Recording Length: {recordingLength} seconds</p> : ''}
 
