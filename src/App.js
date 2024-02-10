@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import 'semantic-ui-css/semantic.min.css'
-import { Button, Table, Progress, Segment } from 'semantic-ui-react'
+import 'semantic-ui-css/semantic.min.css';
+import { Button, Table, Progress, Segment } from 'semantic-ui-react';
 
 // Max Record Time - Seconds
-const MAX_RECORD_TIME = 30;
+const MAX_RECORD_TIME = 5;
 
 // Max Size Limit - Mb
 const MAX_SIZE_LIMIT = 50;
@@ -20,17 +20,24 @@ export default function Home() {
   const chunksRef = useRef([]);
 
   useEffect(() => {
+    return () => {
+      // Clear interval on component unmount
+      clearInterval(timerIdRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
     if (recorder) {
       recorder.ondataavailable = (event) => {
         chunksRef.current.push(event.data);
       };
-  
+
       recorder.onstop = () => {
         console.log('Stopping Record.');
         const blob = new Blob(chunksRef.current, { type: 'video/webm' });
         const sizeInMB = blob.size / (1024 * 1024);
         const sizeType = sizeInMB > 1000 ? 'GB' : 'MB';
-  
+
         if (sizeInMB > MAX_SIZE_LIMIT) {
           setMessage(`Video is ${sizeInMB}${sizeType} in size, which is ${sizeInMB - MAX_SIZE_LIMIT}${sizeType} greater than the permissible ${MAX_SIZE_LIMIT}MB. Please record a shorter video.`);
         } else {
@@ -40,7 +47,7 @@ export default function Home() {
             ...prevHistory,
             {
               filename: filename,
-              timeRecordedFor: getRecordingLength(), 
+              timeRecordedFor: getRecordingLength(),
               size: `${sizeInMB.toFixed(2)} ${sizeType}`,
               time: new Date().toLocaleString(),
               url: videoURL,
@@ -51,11 +58,11 @@ export default function Home() {
         clearInterval(timerIdRef.current);
         setRecordingLength(0);
       };
-  
+
       if (isRecording && !isPaused) {
         timerIdRef.current = setInterval(() => {
-          setRecordingLength(prevLength => {
-            if (prevLength + 1 > MAX_RECORD_TIME) {
+          setRecordingLength((prevLength) => {
+            if (prevLength + 1 >= MAX_RECORD_TIME) {
               stopRecording();
               setMessage(`Maximum recording time (${MAX_RECORD_TIME} seconds) reached.`);
               return prevLength;
@@ -68,11 +75,11 @@ export default function Home() {
         clearInterval(timerIdRef.current);
       }
     }
-  }, [recorder, isRecording, isPaused]);  
+  }, [recorder, isRecording, isPaused]);
 
   const getRecordingLength = () => {
-    return `${recordingLength < 60 ? `${recordingLength} Seconds` : `${recordingLength / 60} Minutes`} `
-  }
+    return `${recordingLength < 60 ? `${recordingLength} Seconds` : `${Math.floor(recordingLength / 60)} Minutes ${recordingLength % 60} Seconds`}`;
+  };
 
   const startRecording = async () => {
     try {
@@ -83,6 +90,8 @@ export default function Home() {
         newRecorder.start();
         setRecorder(newRecorder);
         setRecording(true);
+        setRecordingLength(0);
+        setMessage('');
       } else {
         throw new Error('Failed to get stream');
       }
@@ -121,15 +130,16 @@ export default function Home() {
     setRecording(false);
     setPause(false);
 
-    // Clear the timer
     clearInterval(timerIdRef.current);
+
+    setRecordingLength(0);
   };
 
   return (
     <div>
       <video ref={videoRef} muted autoPlay></video>
       <Segment>
-        <Button onClick={() => startRecording()} disabled={isRecording}>
+        <Button color='green' onClick={() => startRecording()} disabled={isRecording}>
           Start Recording
         </Button>
         <Button color={isPaused ? 'orange' : 'yellow'} onClick={() => (isPaused ? resumeRecording() : pauseRecording())} disabled={!isRecording}>
@@ -140,7 +150,7 @@ export default function Home() {
         </Button>
       </Segment>
       <p>{message}</p>
-      {recordingLength ? <p>Recording Length: {recordingLength} seconds</p> : ''}
+      {recordingLength ? <p>Recording Length: {getRecordingLength()}</p> : ''}
 
       {isRecording && (
         <Progress
